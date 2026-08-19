@@ -128,6 +128,158 @@ describe("useTodos 카테고리", () => {
   });
 });
 
+describe("useTodos toggleTodo", () => {
+  it("완료 상태를 반전시킨다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+    });
+    const id = result.current.todos[0].id;
+
+    act(() => {
+      result.current.toggleTodo(id);
+    });
+    expect(result.current.todos[0].completed).toBe(true);
+
+    act(() => {
+      result.current.toggleTodo(id);
+    });
+    expect(result.current.todos[0].completed).toBe(false);
+  });
+
+  it("존재하지 않는 id로 호출하면 목록이 변경되지 않는다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+    });
+    const before = result.current.todos;
+
+    act(() => {
+      result.current.toggleTodo("존재하지-않는-id");
+    });
+
+    expect(result.current.todos).toEqual(before);
+  });
+});
+
+describe("useTodos deleteTodo", () => {
+  it("해당 id의 항목을 목록에서 제거한다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+      result.current.addTodo("청소");
+    });
+    const idToDelete = result.current.todos[0].id;
+
+    act(() => {
+      result.current.deleteTodo(idToDelete);
+    });
+
+    expect(result.current.todos).toHaveLength(1);
+    expect(
+      result.current.todos.find((todo) => todo.id === idToDelete)
+    ).toBeUndefined();
+  });
+
+  it("마지막 남은 항목을 삭제하면 빈 배열이 되고 localStorage도 빈 배열로 갱신된다", async () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+    });
+    const id = result.current.todos[0].id;
+
+    act(() => {
+      result.current.deleteTodo(id);
+    });
+
+    expect(result.current.todos).toEqual([]);
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem("todos") ?? "null")).toEqual([]);
+    });
+  });
+});
+
+describe("useTodos editTodo", () => {
+  it("텍스트만 갱신하고 나머지 필드는 유지한다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기", "high", "2026-07-01", "work");
+    });
+    const original = result.current.todos[0];
+
+    act(() => {
+      result.current.editTodo(original.id, "장보기 수정");
+    });
+
+    expect(result.current.todos[0]).toMatchObject({
+      id: original.id,
+      text: "장보기 수정",
+      priority: original.priority,
+      createdAt: original.createdAt,
+      completed: original.completed,
+      dueDate: original.dueDate,
+      category: original.category,
+    });
+  });
+
+  it("앞뒤 공백은 trim되어 저장된다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+    });
+    const id = result.current.todos[0].id;
+
+    act(() => {
+      result.current.editTodo(id, "  청소  ");
+    });
+
+    expect(result.current.todos[0].text).toBe("청소");
+  });
+
+  it("빈 문자열로 편집하면 해당 항목이 삭제된다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+      result.current.addTodo("청소");
+    });
+    const idToEdit = result.current.todos[0].id;
+
+    act(() => {
+      result.current.editTodo(idToEdit, "   ");
+    });
+
+    expect(result.current.todos).toHaveLength(1);
+    expect(
+      result.current.todos.find((todo) => todo.id === idToEdit)
+    ).toBeUndefined();
+  });
+
+  it("편집한 텍스트를 localStorage에 즉시 반영한다", async () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+    });
+    const id = result.current.todos[0].id;
+
+    act(() => {
+      result.current.editTodo(id, "장보기 수정");
+    });
+
+    await waitFor(() => {
+      const stored = JSON.parse(localStorage.getItem("todos") ?? "[]");
+      expect(stored[0]?.text).toBe("장보기 수정");
+    });
+  });
+});
+
 describe("useTodos 손상 데이터 보호", () => {
   it("파싱할 수 없는 저장값을 빈 배열로 덮어쓰지 않는다", async () => {
     localStorage.setItem("todos", "{이건 JSON이 아님");
