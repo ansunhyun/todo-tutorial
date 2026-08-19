@@ -2,6 +2,15 @@
 
 [Claude Code Playbook](https://docs.claude-hunt.com) 강의의 실습용 저장소입니다. Next.js 와 shadcn/ui 로 시작하는 작은 Todo 앱을 단계별로 발전시키며 Claude Code 사용법을 익힙니다.
 
+## 주요 기능
+
+- 할 일 추가 · 수정 · 삭제 및 완료 상태 토글
+- 카테고리 태그 지정 및 카테고리별 필터링
+- 제목으로 할 일 검색
+- 이름순 · 생성일순 · 마감일순 정렬
+- 다크 모드 지원 (`d` 키로 토글)
+- 모바일 대응 반응형 레이아웃
+
 ## 관련 링크
 
 - 강의 본문: https://docs.claude-hunt.com
@@ -17,6 +26,12 @@
 - 패키지 매니저: bun 1.3.6
 
 ## 시작하기
+
+### 요구 사항
+
+- [Bun](https://bun.sh) 1.3.6 이상
+
+### 설치 및 실행
 
 ```bash
 bun install
@@ -34,6 +49,8 @@ bun run start      # 빌드 결과 실행
 bun run lint       # ESLint
 bun run typecheck  # tsc --noEmit
 bun run format     # Prettier 포맷팅
+bun run test       # 테스트 실행 (vitest)
+bun run test:watch # 테스트 watch 모드
 ```
 
 ## 챕터별 시작 브랜치
@@ -57,7 +74,7 @@ bunx --bun shadcn@latest add button
 ## 컴포넌트 사용
 
 ```tsx
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 ```
 
 ## Contributors
