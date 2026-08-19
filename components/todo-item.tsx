@@ -63,71 +63,75 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   const category = todo.category ? CATEGORY_META[todo.category] : undefined;
 
   return (
-    <li className="flex items-center gap-3 rounded-md border border-border px-3 py-2">
-      <Checkbox
-        checked={todo.completed}
-        onCheckedChange={() => onToggle(todo.id)}
-        aria-label={todo.completed ? "완료 취소" : "완료로 표시"}
-      />
-
-      {editing ? (
-        <Input
-          ref={inputRef}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={commit}
-          className="h-7 flex-1"
-          aria-label="할 일 편집"
+    <li className="flex flex-col gap-2 rounded-md border border-border px-3 py-2 sm:flex-row sm:items-center sm:gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <Checkbox
+          checked={todo.completed}
+          onCheckedChange={() => onToggle(todo.id)}
+          aria-label={todo.completed ? "완료 취소" : "완료로 표시"}
         />
-      ) : (
-        <span
-          onDoubleClick={startEditing}
-          className={cn(
-            "flex-1 cursor-pointer break-words",
-            todo.completed && "text-muted-foreground line-through"
-          )}
-        >
-          {todo.text}
-        </span>
-      )}
 
-      {todo.dueDate && (
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-          {todo.dueDate}
-        </span>
-      )}
+        {editing ? (
+          <Input
+            ref={inputRef}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={commit}
+            className="h-7 flex-1"
+            aria-label="할 일 편집"
+          />
+        ) : (
+          <span
+            onDoubleClick={startEditing}
+            className={cn(
+              "min-w-0 flex-1 cursor-pointer break-words",
+              todo.completed && "text-muted-foreground line-through"
+            )}
+          >
+            {todo.text}
+          </span>
+        )}
+      </div>
 
-      {category && (
+      <div className="flex shrink-0 items-center gap-2 pl-8 sm:pl-0">
+        {todo.dueDate && (
+          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+            {todo.dueDate}
+          </span>
+        )}
+
+        {category && (
+          <span
+            className={cn(
+              "shrink-0 rounded-full border px-2 py-0.5 text-[0.625rem] font-medium leading-none",
+              category.badgeClass
+            )}
+          >
+            {category.label}
+          </span>
+        )}
+
         <span
           className={cn(
             "shrink-0 rounded-full border px-2 py-0.5 text-[0.625rem] font-medium leading-none",
-            category.badgeClass
+            priority.badgeClass
           )}
         >
-          {category.label}
+          {priority.label}
         </span>
-      )}
 
-      <span
-        className={cn(
-          "shrink-0 rounded-full border px-2 py-0.5 text-[0.625rem] font-medium leading-none",
-          priority.badgeClass
-        )}
-      >
-        {priority.label}
-      </span>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
-        onClick={() => onDelete(todo.id)}
-        aria-label="삭제"
-      >
-        <XIcon />
-      </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
+          onClick={() => onDelete(todo.id)}
+          aria-label="삭제"
+        >
+          <XIcon />
+        </Button>
+      </div>
     </li>
   );
 }
